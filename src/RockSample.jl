@@ -34,6 +34,7 @@ Represents the state in a RockSamplePOMDP problem.
 struct RSState{K}
     pos::RSPos 
     rocks::SVector{K, Bool}
+    step::Int
 end
 
 @with_kw struct RockSamplePOMDP{K} <: POMDP{RSState{K}, Int, Int}
@@ -47,10 +48,12 @@ end
     sensor_use_penalty::Float64 = 0.
     exit_reward::Float64 = 10.
     terminal_state::RSState{K} = RSState(RSPos(-1,-1),
-                                         SVector{length(rocks_positions),Bool}(falses(length(rocks_positions))))
+                                         SVector{length(rocks_positions),Bool}(falses(length(rocks_positions))),-1)
     # Some special indices for quickly retrieving the stateindex of any state
     indices::Vector{Int} = cumprod([map_size[1], map_size[2], fill(2, length(rocks_positions))...][1:end-1])
+    physical_states::Int = length(CartesianIndices((map_size..., fill(2, length(rocks_positions))...)))
     discount_factor::Float64 = 0.95
+    horizon::Int = 30
 end
 
 # to handle the case where rocks_positions is not a StaticArray
@@ -82,19 +85,19 @@ end
 
 # transform a Rocksample state to a vector 
 function POMDPs.convert_s(T::Type{<:AbstractArray}, s::RSState, m::RockSamplePOMDP)
-    return convert(T, vcat(s.pos, s.rocks))
+    return convert(T, vcat(s.pos, s.rocks, s.step))
 end
 
 # transform a vector to a RSState
 function POMDPs.convert_s(T::Type{RSState}, v::AbstractArray, m::RockSamplePOMDP)
-    return RSState(RSPos(v[1], v[2]), SVector{length(v)-2,Bool}(v[i] for i = 3:length(v)))
+    return RSState(RSPos(v[1], v[2]), SVector{length(v)-3,Bool}(v[i] for i = 3:length(v)-1), Int(v[end]))
 end
 
 
 # To handle the case where the `rocks_positions` is specified
 RockSamplePOMDP(map_size::Tuple{Int, Int}, rocks_positions::AbstractVector) = RockSamplePOMDP(map_size=map_size, rocks_positions=rocks_positions)
 
-POMDPs.isterminal(pomdp::RockSamplePOMDP, s::RSState) = s.pos == pomdp.terminal_state.pos 
+POMDPs.isterminal(pomdp::RockSamplePOMDP, s::RSState) = (s.pos == pomdp.terminal_state.pos) || (s.step == pomdp.horizon)
 POMDPs.discount(pomdp::RockSamplePOMDP) = pomdp.discount_factor
 
 include("states.jl")

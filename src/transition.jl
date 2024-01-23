@@ -20,7 +20,7 @@ function POMDPs.transition(pomdp::RockSamplePOMDP{K}, s::RSState{K}, a::Int) whe
     else
         new_pos = RSPos(clamp(new_pos[1], 1, pomdp.map_size[1]), 
                         clamp(new_pos[2], 1, pomdp.map_size[2]))
-        new_state = RSState{K}(new_pos, new_rocks)
+        new_state = RSState{K}(new_pos, new_rocks, s.step+1)
     end
     return Deterministic(new_state)
 end

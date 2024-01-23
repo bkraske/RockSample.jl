@@ -20,7 +20,7 @@ Pkg.add("RockSample")
 ## Problem description
 
 
-- **States**: position of the robot and status of the rocks.
+- **States**: position of the robot, status of the rocks, and problem horizon.
 
 - **Actions**: There are 5 basic actions, moving up, down, left, and right, and sampling a rock and $K$ sensing actions to check the state of a rock. When sampling or sensing, the robot does not move.  
 
@@ -71,5 +71,5 @@ simulate(sim, pomdp, policy)
 **Internal types:**
 
 `RSPos` : represent a position in the grid as a static array of 2 integers.
-`RSState`: represent the state of the POMDP. The field `pos::RSPos` is the position of the robots
-and the field `rocks::SVector{K, Bool}` represents the status of the rocks (good or bad).
+`RSState`: represent the state of the POMDP. The field `pos::RSPos` is the position of the robots,
+the field `rocks::SVector{K, Bool}` represents the status of the rocks (good or bad), and `step::Int` represents the current horizon of the problem.
