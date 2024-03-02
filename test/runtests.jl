@@ -5,6 +5,7 @@ using POMDPTools
 using Test
 using Compose
 using ParticleFilters
+using StaticArrays
 
 function test_state_indexing(pomdp::RockSamplePOMDP{K}, ss::Vector{RSState{K}}) where K
     for (i,s) in enumerate(states(pomdp))
@@ -198,5 +199,38 @@ end
     # test sense
     for i in 1:length(s.rocks)
         @test next_position(s, N_BASIC_ACTIONS+i) == s.pos
+    end
+end
+
+@testset "Terminal States" begin
+    pomdp1 = RockSamplePOMDP()
+    for (i,s) in enumerate(ordered_states(pomdp1))
+        @test i == stateindex(pomdp1,s)
+    end
+    phys_states = ordered_states(pomdp1)[findall(x->x.step==(pomdp1.horizon-1),ordered_states(pomdp1))]
+    for s in phys_states
+        if !isterminal(pomdp1,s)
+            for a in actions(pomdp1)
+                sps = support(transition(pomdp1,s,a))
+                for sp in sps
+                    @test isterminal(pomdp1,sp) == true
+                end
+            end
+        end
+    end
+end
+
+@testset "Horizon Incrementing" begin
+    pomdp1 = RockSamplePOMDP()
+    for s in ordered_states(pomdp1)
+        if !isterminal(pomdp1,s)
+            for a in actions(pomdp1)
+                for sp in support(transition(pomdp1,s,a))
+                    if !isterminal(pomdp1,sp)
+                        @test s.step + 1 == sp.step
+                    end
+                end
+            end
+        end
     end
 end
