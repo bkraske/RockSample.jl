@@ -33,7 +33,7 @@ Represents the state in a RockSamplePOMDP problem.
 """
 struct RSState{K}
     pos::RSPos 
-    rocks::SVector{K, Bool}
+    rocks::SVector{K, Int}
     step::Int
 end
 
@@ -42,18 +42,20 @@ end
     rocks_positions::SVector{K,RSPos} = @SVector([(1,1), (3,3), (4,4)])
     init_pos::RSPos = (1,1)
     sensor_efficiency::Float64 = 20.0
-    bad_rock_penalty::Float64 = -10
-    good_rock_reward::Float64 = 10.
+    rock_types = [1,2]
+    rock_rewards::Float64 = [10.,-10.]
     step_penalty::Float64 = 0.
     sensor_use_penalty::Float64 = 0.
     exit_reward::Float64 = 10.
     terminal_state::RSState{K} = RSState(RSPos(-1,-1),
-                                         SVector{length(rocks_positions),Bool}(falses(length(rocks_positions))),-1)
+                                         SVector{length(rocks_positions),Int}(ones(length(rocks_positions))),-1)
     # Some special indices for quickly retrieving the stateindex of any state
-    indices::Vector{Int} = cumprod([map_size[1], map_size[2], fill(2, length(rocks_positions))...][1:end-1])
-    physical_states::Int = length(CartesianIndices((map_size..., fill(2, length(rocks_positions))...)))
-    discount_factor::Float64 = 0.95
+    indices::Vector{Int} = cumprod([map_size[1], map_size[2], fill(length(rock_types), length(rocks_positions))...][1:end-1])
+    physical_states::Int = length(CartesianIndices((map_size..., fill(length(rock_types), length(rocks_positions))...)))
+    grid_locs = [RSPos(x,y) for x in 1:map_size[1] for y in 1:map_size[2]]
     horizon::Int = 30
+    states = [RSState(pos, rocks, step) for pos in grid_locs for rocks in rock_types for step in 1:horizon]
+    discount_factor::Float64 = 0.95
 end
 
 # to handle the case where rocks_positions is not a StaticArray
@@ -90,7 +92,7 @@ end
 
 # transform a vector to a RSState
 function POMDPs.convert_s(T::Type{RSState}, v::AbstractArray, m::RockSamplePOMDP)
-    return RSState(RSPos(v[1], v[2]), SVector{length(v)-3,Bool}(v[i] for i = 3:length(v)-1), Int(v[end]))
+    return RSState(RSPos(v[1], v[2]), SVector{length(v)-3,Int}(v[i] for i = 3:length(v)-1), Int(v[end]))
 end
 
 
