@@ -6,9 +6,9 @@ function POMDPs.transition(pomdp::RockSamplePOMDP{K}, s::RSState{K}, a::Int) whe
     if a == BASIC_ACTIONS_DICT[:sample] && in(s.pos, pomdp.rocks_positions)
         rock_ind = findfirst(isequal(s.pos), pomdp.rocks_positions) # slow ?
         # set the new rock to bad
-        new_rocks = MVector{K, Bool}(undef)
+        new_rocks = MVector{K, Int}(undef)
         for r=1:K
-            new_rocks[r] = r == rock_ind ? false : s.rocks[r]
+            new_rocks[r] = r == rock_ind ? 1 : s.rocks[r]
         end
         new_rocks = SVector(new_rocks)
     else 

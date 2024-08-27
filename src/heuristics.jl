@@ -49,11 +49,11 @@ function rs_mdp_utility(m::RockSamplePOMDP{K}) where K
     exit_returns = [discounts[m.map_size[1] - x + 1] * m.exit_reward for x in 1:m.map_size[1]]
 
     # Calculate the optimal utility for states having no good rocks, which is the exit return.
-    rocks = falses(K)
+    rocks = ones(K)
     for x in 1:m.map_size[1]
         for y in 1:m.map_size[2]
             for h in 1:m.horizon-1
-                util[stateindex(m, RSState(RSPos(x,y), SVector{K,Bool}(rocks), h))] = exit_returns[x]
+                util[stateindex(m, RSState(RSPos(x,y), SVector{K,Int}(rocks), h))] = exit_returns[x]
             end
         end
     end
@@ -62,9 +62,9 @@ function rs_mdp_utility(m::RockSamplePOMDP{K}) where K
     # Utility_k = max(ExitReturn, argmax_{r∈GoodRocks}(γ^{Manhattan distance to r}Utility_{k-1}))
     for good_rock_num in 1:K
         for good_rocks in combinations(1:K, good_rock_num)
-            rocks = falses(K)
+            rocks = ones(K)
             for good_rock in good_rocks
-                rocks[good_rock] = true
+                rocks[good_rock] = 2
             end
             for x in 1:m.map_size[1]
                 for y in 1:m.map_size[2]
@@ -72,15 +72,15 @@ function rs_mdp_utility(m::RockSamplePOMDP{K}) where K
                         best_return = exit_returns[x]
                         for good_rock in good_rocks
                             dist_to_good_rock = abs(x - m.rocks_positions[good_rock][1]) + abs(y - m.rocks_positions[good_rock][2])
-                            rocks[good_rock] = false
+                            rocks[good_rock] = 1
                             rew_h = dist_to_good_rock < m.horizon-h ? h+dist_to_good_rock : m.horizon
-                            sample_return = discounts[dist_to_good_rock+1] * (m.good_rock_reward + discounts[2] * util[stateindex(m, RSState(m.rocks_positions[good_rock], SVector{K,Bool}(rocks),rew_h))])
-                            rocks[good_rock] = true
+                            sample_return = discounts[dist_to_good_rock+1] * (m.rock_rewards[1] + discounts[2] * util[stateindex(m, RSState(m.rocks_positions[good_rock], SVector{K,Int}(rocks),rew_h))])
+                            rocks[good_rock] = 2
                             if sample_return > best_return
                                 best_return = sample_return
                             end
                         end
-                        util[stateindex(m, RSState(RSPos(x,y), SVector{K,Bool}(rocks),h))] = best_return
+                        util[stateindex(m, RSState(RSPos(x,y), SVector{K,Int}(rocks),h))] = best_return
                     end
                 end
             end

@@ -42,19 +42,17 @@ end
     rocks_positions::SVector{K,RSPos} = @SVector([(1,1), (3,3), (4,4)])
     init_pos::RSPos = (1,1)
     sensor_efficiency::Float64 = 20.0
-    rock_types = [1,2]
-    rock_rewards::Float64 = [10.,-10.]
+    rock_types::Vector{Int64} = [1,2]
+    n_types::Int = maximum(rock_types)
+    rock_rewards::Vector{Float64} = [-10.,10.]
     step_penalty::Float64 = 0.
     sensor_use_penalty::Float64 = 0.
     exit_reward::Float64 = 10.
     terminal_state::RSState{K} = RSState(RSPos(-1,-1),
                                          SVector{length(rocks_positions),Int}(ones(length(rocks_positions))),-1)
     # Some special indices for quickly retrieving the stateindex of any state
-    indices::Vector{Int} = cumprod([map_size[1], map_size[2], fill(length(rock_types), length(rocks_positions))...][1:end-1])
-    physical_states::Int = length(CartesianIndices((map_size..., fill(length(rock_types), length(rocks_positions))...)))
-    grid_locs = [RSPos(x,y) for x in 1:map_size[1] for y in 1:map_size[2]]
+    indices::Vector{Int} = cumprod([map_size[1], map_size[2], fill(last(rock_types), length(rocks_positions))...][1:end-1])
     horizon::Int = 30
-    states = [RSState(pos, rocks, step) for pos in grid_locs for rocks in rock_types for step in 1:horizon]
     discount_factor::Float64 = 0.95
 end
 
