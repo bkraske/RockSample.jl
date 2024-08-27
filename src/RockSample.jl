@@ -42,9 +42,9 @@ end
     rocks_positions::SVector{K,RSPos} = @SVector([(1,1), (3,3), (4,4)])
     init_pos::RSPos = (1,1)
     sensor_efficiency::Float64 = 20.0
-    rock_types::Vector{Int64} = [1,2]
-    n_types::Int = maximum(rock_types)
     rock_rewards::Vector{Float64} = [-10.,10.]
+    rock_types::Vector{Int64} = 1:length(unique(rock_rewards))
+    n_types::Int = maximum(rock_types)
     step_penalty::Float64 = 0.
     sensor_use_penalty::Float64 = 0.
     exit_reward::Float64 = 10.

@@ -71,15 +71,15 @@ end
     @test obs == ordered_observations(pomdp)
     s0 = rand(rng, initialstate(pomdp))
     s0 = RSState{3}([1, 1], [2, 1, 1], 1)
-    @show od = observation(pomdp, 1, s0)
+    od = observation(pomdp, 1, s0)
     o = rand(rng, od)
     @test o == 3
     @inferred observation(pomdp, 6, s0)
     @inferred observation(pomdp, 1, s0)
-    @show observation(pomdp, 6, s0)
+    observation(pomdp, 6, s0)
     o = rand(rng, observation(pomdp, 6, s0))
     @test o == 2
-    @show observation(pomdp, 7, s0)
+    observation(pomdp, 7, s0)
     o = rand(rng, observation(pomdp, 7, s0))
     @test o == 1
     @test has_consistent_observation_distributions(pomdp)
@@ -249,4 +249,5 @@ end
         @show observation(pomdp1,RockSample.N_BASIC_ACTIONS+i,RSState{3}(rock, [1, 2, 3],1))
         @test argmax(observation(pomdp1,RockSample.N_BASIC_ACTIONS+i,RSState{3}(rock, [1, 2, 3],1)).probs) == i
     end
+    @inferred initialstate(pomdp1)
 end

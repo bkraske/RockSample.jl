@@ -35,8 +35,8 @@ function Base.iterate(pomdp::RockSamplePOMDP, i::Int=1)
 end
 
 function POMDPs.initialstate(pomdp::RockSamplePOMDP{K}) where K
-    probs = normalize!(ones(2^K), 1)
-    states = Vector{RSState{K}}(undef, 2^K)
+    probs = normalize!(ones(pomdp.n_types^K), 1)
+    states = Vector{RSState{K}}(undef, pomdp.n_types^K)
     for (i,rocks) in enumerate(Iterators.product(ntuple(x->collect(1:pomdp.n_types), K)...))
         states[i] = RSState{K}(pomdp.init_pos, SVector(rocks),1)
     end
