@@ -3,6 +3,7 @@ function POMDPTools.render(pomdp::RockSamplePOMDP, step;
     viz_belief=true,
     pre_act_text=""
 )
+    color_pallet = Compose.range(Compose.colorant"red", stop=Compose.colorant"green", length=pomdp.n_types)
     nx, ny = pomdp.map_size[1] + 1, pomdp.map_size[2] + 1
     cells = []
     for x in 1:nx-1, y in 1:ny-1
@@ -18,7 +19,7 @@ function POMDPTools.render(pomdp::RockSamplePOMDP, step;
         ctx = cell_ctx((rx, ry), (nx, ny))
         clr = "black"
         if viz_rock_state && get(step, :s, nothing) !== nothing
-            clr = step[:s].rocks[i] ? "green" : "red"
+            clr = color_pallet[step[:s].rocks[i]]
         end
         rock = compose(ctx, ngon(0.5, 0.5, 0.3, 6), stroke(clr), fill("gray"))
         push!(rocks, rock)
@@ -119,11 +120,12 @@ function render_action_text(pomdp::RockSamplePOMDP, step, pre_act_text)
 end
 
 function render_action(pomdp::RockSamplePOMDP, step)
+    color_pallet = Compose.range(Compose.colorant"red", stop=Compose.colorant"green", length=pomdp.n_types)
     if step.a == BASIC_ACTIONS_DICT[:sample]
         ctx = cell_ctx(step.s.pos, pomdp.map_size .+ (1, 1))
         if in(step.s.pos, pomdp.rocks_positions)
             rock_ind = findfirst(isequal(step.s.pos), pomdp.rocks_positions)
-            clr = step.s.rocks[rock_ind] ? "green" : "red"
+            clr = color_pallet[step.s.rocks[rock_ind]]
         else
             clr = "black"
         end

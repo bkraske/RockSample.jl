@@ -143,13 +143,13 @@ end
     @time solve(RSQMDPSolver(), pomdp)
 end
 
-# @testset "rendering" begin 
-#     pomdp = RockSamplePOMDP{3}(init_pos=(1,1))
-#     s0 = RSState{3}((1,1), [true, false, true],1)
-#     render(pomdp, (s=s0, a=3))
-#     b0 = initialstate(pomdp)
-#     render(pomdp, (s=s0, a=3, b=b0))
-# end
+@testset "rendering" begin 
+    pomdp = RockSamplePOMDP{3}(init_pos=(1,1))
+    s0 = RSState{3}((1,1), [2, 1, 2],1)
+    display(render(pomdp, (s=s0, a=3)))
+    b0 = initialstate(pomdp)
+    display(render(pomdp, (s=s0, a=3, b=b0)))
+end
 
 @testset "constructor" begin
     @test RockSamplePOMDP() isa RockSamplePOMDP
@@ -159,11 +159,11 @@ end
     @test RockSamplePOMDP((11,5), [(1,2), (2,4), (11,5)]) isa RockSamplePOMDP{3}
 end
 
-# @testset "visualization" begin
-#     include("test_visualization.jl")
-#     test_initial_state()
-#     test_particle_collection()
-# end
+@testset "visualization" begin
+    include("test_visualization.jl")
+    test_initial_state()
+    test_particle_collection()
+end
 
 @testset "transition" begin
     rng = MersenneTwister(1)

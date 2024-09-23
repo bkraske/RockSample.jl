@@ -29,7 +29,7 @@ function next_position(s::RSState, a::Int)
     if a > N_BASIC_ACTIONS || a == 1
         # robot check rocks or samples
         return s.pos
-    elseif a <= N_BASIC_ACTIONS
+    else
         # the robot moves 
         return s.pos + ACTION_DIRS[a]
     end
